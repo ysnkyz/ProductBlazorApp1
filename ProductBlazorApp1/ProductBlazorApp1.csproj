@@ -7,6 +7,15 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Pages\Login2.cshtml.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Content Remove="Pages\Login.razor" />
+	  <Content Remove="Pages\Login2.cshtml" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Folder Include="Data\" />
 	</ItemGroup>
 

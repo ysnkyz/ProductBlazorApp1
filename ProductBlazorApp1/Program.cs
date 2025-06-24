@@ -1,4 +1,5 @@
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProductBlazorApp1.Data;
@@ -8,16 +9,15 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddBlazoredLocalStorage();
-//builder.Services.AddBlazoredLocalStorage(config =>
-//{
-//    config.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
-//    config.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
-//    config.JsonSerializerOptions.IgnoreReadOnlyProperties = true;
-//    config.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-//    config.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-//    config.JsonSerializerOptions.ReadCommentHandling = JsonCommentHandling.Skip;
-//    config.JsonSerializerOptions.WriteIndented = false;
-//});
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/login";
+    });
+
+builder.Services.AddAuthorization();
+
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite("Data Source=productreviewNew.db"));
@@ -102,7 +102,14 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+// login ile baþlat 
+app.MapGet("/", ctx =>
+{
+    ctx.Response.Redirect("/login", permanent: false);
+    return Task.CompletedTask;
+});
 
+app.MapRazorPages();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 

@@ -29,6 +29,22 @@ else
         </div>
 
         <div class="mb-3">
+            <label>Görsel URL</label>
+            <InputText @bind-Value="product.ImageUrl" class="form-control" />
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+        {
+            <div class="mb-3">
+                <label>Mevcut Görsel</label><br />
+                <img src="@product.ImageUrl"
+                     alt="Ürün Görseli"
+                     class="img-fluid rounded border"
+                     style="max-height: 200px; object-fit: cover;" />
+            </div>
+        }
+
+        <div class="mb-3">
             <label>Marka</label>
             <InputSelect @bind-Value="product.BrandId" class="form-control">
                 <option value="">-- Marka Seçin --</option>

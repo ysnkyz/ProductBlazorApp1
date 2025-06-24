@@ -1,56 +1,4 @@
-﻿@* @layout MainLayout
-@page "/products"
-@using Microsoft.EntityFrameworkCore
-@using ProductBlazorApp1.Models
-@using ProductBlazorApp1.Data
-@inject ApplicationDbContext DbContext
-
-<h1 class="h3 mb-4 text-gray-800">Ürün Listesi</h1>
-
-@if (products == null)
-{
-    <p><em>Yükleniyor...</em></p>
-}
-else if (!products.Any())
-{
-    <div class="alert alert-info">Hiç ürün bulunamadı.</div>
-}
-else
-{
-    <div class="row">
-        @foreach (var product in products)
-        {
-            <div class="col-md-4 mb-4">
-                <div class="card border-left-primary shadow h-100 py-2">
-                    <div class="card-body">
-                        <h5 class="card-title">@product.Name</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">@product.Brand?.BrandName</h6>
-                        <p class="card-text">
-                            <strong>Kategori:</strong> @product.Category?.CategoryName
-                        </p>
-                        <a class="btn btn-sm btn-outline-primary" href="/products/@product.Id">Detay</a>
-                    </div>
-                </div>
-            </div>
-        }
-    </div>
-}
-
-@code {
-    private List<Product>? products;
-
-    protected override async Task OnInitializedAsync()
-    {
-        products = await DbContext.Products
-            .Include(p => p.Brand)
-            .Include(p => p.Category)
-            .ToListAsync();
-    }
-} *@
-
-
-
-
+﻿
 @layout MainLayout
 @page "/products"
 @using Microsoft.EntityFrameworkCore
@@ -63,6 +11,7 @@ else
 
 <button class="btn btn-primary mb-3" @onclick="() => showForm = true">+ Yeni Ürün Ekle</button>
 
+<!-- Yeni Ürün Formu -->
 @if (showForm)
 {
     <div class="card mb-4 p-4 border border-success">
@@ -77,6 +26,10 @@ else
             <div class="mb-2">
                 <label>Açıklama</label>
                 <InputTextArea @bind-Value="newProduct.Description" class="form-control" />
+            </div>
+            <div class="mb-2">
+                <label>Görsel URL</label>
+                <InputText @bind-Value="newProduct.ImageUrl" class="form-control" />
             </div>
             <div class="mb-2">
                 <label>Marka</label>
@@ -105,36 +58,32 @@ else
     </div>
 }
 
-@if (products == null)
-{
-    <p><em>Yükleniyor...</em></p>
-}
-else if (!products.Any())
-{
-    <div class="alert alert-info">Hiç ürün bulunamadı.</div>
-}
-else
-{
-    <div class="row">
-        @foreach (var product in products)
-        {
-            <div class="col-md-4 mb-4">
-                <div class="card border-left-primary shadow h-100 py-2">
-                    <div class="card-body">
-                        <h5 class="card-title">@product.Name</h5>
-                        <h6 class="card-subtitle mb-2 text-muted">@product.Brand?.BrandName</h6>
-                        <p class="card-text">
-                            <strong>Kategori:</strong> @product.Category?.CategoryName
-                        </p>
-                        <a class="btn btn-sm btn-outline-primary me-1" href="/products/@product.Id">Detay</a>
-                        <a class="btn btn-sm btn-warning me-1" href="/products/edit/@product.Id">Düzenle</a>
-                        <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteProduct(product.Id))">Sil</button>
-                    </div>
+<!-- Ürün Kartları -->
+<div class="row">
+    @foreach (var product in products)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card border-left-primary shadow h-100">
+                <img src="@(!string.IsNullOrWhiteSpace(product.ImageUrl) ? product.ImageUrl : "https://via.placeholder.com/300x200?text=Görsel+Yok")"
+                     class="card-img-top"
+                     alt="Ürün Görseli"
+                     style="height: 200px; width: 100%; object-fit: cover; object-position: center; border-bottom: 1px solid #ddd;" />
+
+                <div class="card-body">
+                    <h5 class="card-title">@product.Name</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">@product.Brand?.BrandName</h6>
+                    <p class="card-text"><strong>Kategori:</strong> @product.Category?.CategoryName</p>
+                    <a class="btn btn-sm btn-outline-primary me-1" href="/products/@product.Id">Detay</a>
+                    <a class="btn btn-sm btn-warning me-1" href="/products/edit/@product.Id">Düzenle</a>
+                    <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteProduct(product.Id))">Sil</button>
                 </div>
             </div>
-        }
-    </div>
-}
+        </div>
+    }
+</div>
+
+
+
 
 @code {
     private List<Product>? products;
