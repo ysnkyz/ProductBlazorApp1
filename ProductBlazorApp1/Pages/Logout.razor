@@ -1,0 +1,19 @@
+﻿@page "/logout"
+@using ProductBlazorApp1.Data
+@inject NavigationManager Navigation
+@inject SignInManager<ApplicationUser> SignInManager
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        // Token temizle
+        await localStorage.RemoveItemAsync("token");
+
+        // Identity oturumu kapat
+        await SignInManager.SignOutAsync();
+
+        // Login sayfasına yönlendir
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}
