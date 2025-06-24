@@ -1,0 +1,30 @@
+﻿@page "/auth"
+@using Microsoft.AspNetCore.Components.Authorization
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h3>Kimlik Doğrulama Durumu</h3>
+
+@if (user == null)
+{
+    <p>Yükleniyor...</p>
+}
+else if (!user.Identity.IsAuthenticated)
+{
+    <p>Lütfen giriş yapın.</p>
+}
+else
+{
+    <p>Hoş geldin @user.Identity.Name</p>
+}
+
+@code {
+    private AuthenticationState authState;
+    private ClaimsPrincipal user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        user = authState.User;
+    }
+}

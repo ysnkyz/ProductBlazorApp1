@@ -1,0 +1,188 @@
+﻿@* @layout MainLayout
+@page "/products"
+@using Microsoft.EntityFrameworkCore
+@using ProductBlazorApp1.Models
+@using ProductBlazorApp1.Data
+@inject ApplicationDbContext DbContext
+
+<h1 class="h3 mb-4 text-gray-800">Ürün Listesi</h1>
+
+@if (products == null)
+{
+    <p><em>Yükleniyor...</em></p>
+}
+else if (!products.Any())
+{
+    <div class="alert alert-info">Hiç ürün bulunamadı.</div>
+}
+else
+{
+    <div class="row">
+        @foreach (var product in products)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">@product.Brand?.BrandName</h6>
+                        <p class="card-text">
+                            <strong>Kategori:</strong> @product.Category?.CategoryName
+                        </p>
+                        <a class="btn btn-sm btn-outline-primary" href="/products/@product.Id">Detay</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<Product>? products;
+
+    protected override async Task OnInitializedAsync()
+    {
+        products = await DbContext.Products
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
+            .ToListAsync();
+    }
+} *@
+
+
+
+
+@layout MainLayout
+@page "/products"
+@using Microsoft.EntityFrameworkCore
+@using ProductBlazorApp1.Models
+@using ProductBlazorApp1.Data
+@inject ApplicationDbContext DbContext
+@inject NavigationManager Navigation
+
+<h1 class="h3 mb-4 text-gray-800">Ürün Listesi</h1>
+
+<button class="btn btn-primary mb-3" @onclick="() => showForm = true">+ Yeni Ürün Ekle</button>
+
+@if (showForm)
+{
+    <div class="card mb-4 p-4 border border-success">
+        <EditForm Model="@newProduct" OnValidSubmit="@HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="mb-2">
+                <label>Ürün Adı</label>
+                <InputText @bind-Value="newProduct.Name" class="form-control" />
+            </div>
+            <div class="mb-2">
+                <label>Açıklama</label>
+                <InputTextArea @bind-Value="newProduct.Description" class="form-control" />
+            </div>
+            <div class="mb-2">
+                <label>Marka</label>
+                <InputSelect @bind-Value="newProduct.BrandId" class="form-control">
+                    <option value="">-- Marka Seçin --</option>
+                    @foreach (var brand in brands)
+                    {
+                        <option value="@brand.Id">@brand.BrandName</option>
+                    }
+                </InputSelect>
+            </div>
+            <div class="mb-2">
+                <label>Kategori</label>
+                <InputSelect @bind-Value="newProduct.CategoryId" class="form-control">
+                    <option value="">-- Kategori Seçin --</option>
+                    @foreach (var category in categories)
+                    {
+                        <option value="@category.Id">@category.CategoryName</option>
+                    }
+                </InputSelect>
+            </div>
+
+            <button type="submit" class="btn btn-success me-2">Kaydet</button>
+            <button type="button" class="btn btn-secondary" @onclick="() => showForm = false">İptal</button>
+        </EditForm>
+    </div>
+}
+
+@if (products == null)
+{
+    <p><em>Yükleniyor...</em></p>
+}
+else if (!products.Any())
+{
+    <div class="alert alert-info">Hiç ürün bulunamadı.</div>
+}
+else
+{
+    <div class="row">
+        @foreach (var product in products)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card border-left-primary shadow h-100 py-2">
+                    <div class="card-body">
+                        <h5 class="card-title">@product.Name</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">@product.Brand?.BrandName</h6>
+                        <p class="card-text">
+                            <strong>Kategori:</strong> @product.Category?.CategoryName
+                        </p>
+                        <a class="btn btn-sm btn-outline-primary me-1" href="/products/@product.Id">Detay</a>
+                        <a class="btn btn-sm btn-warning me-1" href="/products/edit/@product.Id">Düzenle</a>
+                        <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteProduct(product.Id))">Sil</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<Product>? products;
+    private List<Brand> brands = new();
+    private List<Category> categories = new();
+    private Product newProduct = new();
+    private bool showForm = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    private async Task LoadData()
+    {
+        products = await DbContext.Products
+            .Include(p => p.Brand)
+            .Include(p => p.Category)
+            .ToListAsync();
+
+        brands = await DbContext.Brands.OrderBy(b => b.BrandName).ToListAsync();
+        categories = await DbContext.Categories.OrderBy(c => c.CategoryName).ToListAsync();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        DbContext.Products.Add(newProduct);
+        await DbContext.SaveChangesAsync();
+        newProduct = new Product(); // formu temizle
+        showForm = false;
+        await LoadData(); // listeyi yenile
+    }
+
+    private async Task DeleteProduct(int id)
+    {
+        var product = await DbContext.Products.FindAsync(id);
+        if (product != null)
+        {
+            DbContext.Products.Remove(product);
+            await DbContext.SaveChangesAsync();
+            await LoadData(); // listeyi güncelle
+        }
+    }
+}
+
+
+
+
+
+
+

@@ -1,0 +1,19 @@
+﻿namespace ProductBlazorApp1.Models
+{
+    public class Product
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+
+        // MARKA ilişkisi
+        public int? BrandId { get; set; }
+        public Brand? Brand { get; set; }        //Nullable
+
+        // KATEGORİ ilişkisi
+        public int? CategoryId { get; set; }
+        public Category? Category { get; set; }  //Nullable
+
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
+    }
+}

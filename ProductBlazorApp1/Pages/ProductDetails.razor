@@ -1,0 +1,136 @@
+﻿@page "/products/{id:int}"
+@inject ApplicationDbContext db
+@inject NavigationManager Navigation
+@using Microsoft.EntityFrameworkCore
+@using ProductBlazorApp1.Data
+@using ProductBlazorApp1.Models
+
+@code {
+    [Parameter] public int id { get; set; }
+    private Product product;
+    private List<Review> reviews = new();
+    private Review newReview = new();
+    private double averageRating = 0;
+    private string errorMessage;
+
+    protected override void OnInitialized()
+    {
+        product = db.Products
+       .Include(p => p.Category)
+       .Include(p => p.Brand)
+       .FirstOrDefault(p => p.Id == id);
+
+        if (product == null)
+        {
+            Navigation.NavigateTo("/products");
+            return;
+        }
+
+        LoadReviews();
+    }
+
+    private void LoadReviews()
+    {
+        reviews = db.Reviews
+            .Where(r => r.ProductId == id)
+            .OrderByDescending(r => r.CreatedAt)
+            .ToList();
+
+        if (reviews.Any())
+            averageRating = Math.Round(reviews.Average(r => r.Rating), 1);
+        else
+            averageRating = 0;
+    }
+
+    private void AddReview()
+    {
+        if (string.IsNullOrWhiteSpace(newReview.UserName) || newReview.Rating < 1 || newReview.Rating > 5)
+        {
+            errorMessage = "Tüm alanları doldurun ve geçerli bir puan seçin.";
+            return;
+        }
+
+        newReview.ProductId = id;
+        newReview.CreatedAt = DateTime.Now;
+        db.Reviews.Add(new Review
+            {
+                UserName = newReview.UserName,
+                Comment = newReview.Comment,
+                Rating = newReview.Rating,
+                ProductId = id,
+                CreatedAt = DateTime.Now
+            });
+        db.SaveChanges();
+        newReview = new Review();
+        errorMessage = null;
+        LoadReviews();
+        StateHasChanged();
+    }
+}
+
+<h2>@product.Name</h2>
+<p>@product.Description</p>
+<p>Kategori: @product.Category?.CategoryName</p>
+<p>Marka: @product.Brand?.BrandName</p>
+
+
+@if (averageRating > 0)
+{
+    <p>
+        Ortalama Puan:
+        <b>@averageRating</b>
+        @for (int i = 1; i <= 5; i++)
+        {
+            if (i <= (int)Math.Round(averageRating))
+            {
+                <span style="color:gold">★</span>
+            }
+            else
+            {
+                <span style="color:lightgray">★</span>
+            }
+        }
+        (@reviews.Count() yorum)
+    </p>
+}
+else
+{
+    <p>Henüz hiç yorum yok.</p>
+}
+
+<hr />
+
+<h4>Yorum Yap</h4>
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+<EditForm Model="@newReview" OnValidSubmit="@AddReview" FormName="inceleme">
+    <div class="mb-2">
+        <InputText @bind-Value="newReview.UserName" class="form-control" placeholder="Adınız" />
+    </div>
+    <div class="mb-2">
+        <InputTextArea @bind-Value="newReview.Comment" class="form-control" placeholder="Yorumunuz" />
+    </div>
+    <div class="mb-2">
+        <label>Puan:</label>
+        <InputNumber @bind-Value="newReview.Rating" min="1" max="5" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Gönder</button>
+</EditForm>
+
+<hr />
+
+<h4>Yorumlar</h4>
+@foreach (var r in reviews)
+{
+    <div class="border rounded p-2 mb-2">
+        <b>@r.UserName</b>
+        <span style="color:gold">@string.Concat(Enumerable.Repeat("★", r.Rating))</span>
+        <span style="color:lightgray">@string.Concat(Enumerable.Repeat("★", 5 - r.Rating))</span>
+        <span class="text-muted" style="font-size:12px;">@r.CreatedAt.ToShortDateString()</span>
+        <br />
+        @r.Comment
+    </div>
+}
+

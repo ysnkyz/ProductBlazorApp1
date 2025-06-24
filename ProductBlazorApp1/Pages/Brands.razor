@@ -1,0 +1,84 @@
+﻿@page "/brands"
+@using ProductBlazorApp1.Models
+@using ProductBlazorApp1.Data
+@inject ApplicationDbContext db
+
+<h3>Marka Listesi</h3>
+
+<!-- Marka Ekleme Formu -->
+<EditForm Model="@newBrand" OnValidSubmit="@AddBrand">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="input-group mb-3">
+        <InputText @bind-Value="newBrand.BrandName" class="form-control" placeholder="Yeni Marka Adı" />
+        <button type="submit" class="btn btn-primary">Ekle</button>
+    </div>
+</EditForm>
+
+<!-- Marka Listesi -->
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Marka Adı</th>
+            <th>Sil</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (brands is not null)
+        {
+            @foreach (var brand in brands)
+            {
+                <tr>
+                    <td>@brand.Id</td>
+                    <td>@brand.BrandName</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" @onclick="@(() => DeleteBrand(brand.Id))">
+                            <i class="fas fa-trash"></i> Sil
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Brand> brands;
+    private Brand newBrand = new Brand();
+
+    protected override void OnInitialized()
+    {
+        LoadBrands();
+    }
+
+    private void LoadBrands()
+    {
+        brands = db.Brands.OrderBy(b => b.BrandName).ToList();
+    }
+
+    private void AddBrand()
+    {
+        if (!string.IsNullOrWhiteSpace(newBrand.BrandName))
+        {
+            db.Brands.Add(new Brand { BrandName = newBrand.BrandName.Trim() });
+            db.SaveChanges();
+            newBrand = new Brand();
+            LoadBrands();
+            StateHasChanged();
+        }
+    }
+
+    private void DeleteBrand(int id)
+    {
+        var brand = db.Brands.Find(id);
+        if (brand != null)
+        {
+            db.Brands.Remove(brand);
+            db.SaveChanges();
+            LoadBrands();
+            StateHasChanged();
+        }
+    }
+}

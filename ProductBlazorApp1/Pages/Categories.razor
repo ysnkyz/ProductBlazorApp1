@@ -1,0 +1,85 @@
+﻿@page "/categories"
+@using ProductBlazorApp1.Models
+@using ProductBlazorApp1.Data
+@inject ApplicationDbContext db
+
+<h3>Kategori Listesi</h3>
+
+<!-- Kategori Ekleme Formu -->
+<EditForm Model="@newCategory" OnValidSubmit="@AddCategory">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="input-group mb-3">
+        <InputText @bind-Value="newCategory.CategoryName" class="form-control" placeholder="Yeni Kategori Adı" />
+        <button type="submit" class="btn btn-primary">Ekle</button>
+    </div>
+</EditForm>
+
+<!-- Kategori Listesi -->
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Kategori Adı</th>
+            <th>Sil</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (categories is not null)
+        {
+            @foreach (var category in categories)
+            {
+                <tr>
+                    <td>@category.Id</td>
+                    <td>@category.CategoryName</td>
+                    <td>
+                        <button class="btn btn-danger btn-sm" @onclick="@(() => DeleteCategory(category.Id))">
+                            <i class="fas fa-trash"></i> Sil
+                        </button>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Category> categories;
+    private Category newCategory = new Category();
+
+    protected override void OnInitialized()
+    {
+        LoadCategories();
+    }
+
+    private void LoadCategories()
+    {
+        categories = db.Categories.OrderBy(c => c.CategoryName).ToList();
+    }
+
+    private void AddCategory()
+    {
+        Console.WriteLine("AddCategory ÇALIŞTI!");
+        if (!string.IsNullOrWhiteSpace(newCategory.CategoryName))
+        {
+            db.Categories.Add(new Category { CategoryName = newCategory.CategoryName.Trim() });
+            db.SaveChanges();
+            newCategory = new Category();
+            LoadCategories();
+            StateHasChanged();
+        }
+    }
+
+    private void DeleteCategory(int id)
+    {
+        var category = db.Categories.Find(id);
+        if (category != null)
+        {
+            db.Categories.Remove(category);
+            db.SaveChanges();
+            LoadCategories();
+            StateHasChanged();
+        }
+    }
+}
