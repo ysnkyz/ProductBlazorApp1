@@ -22,71 +22,59 @@ builder.Services.AddAuthorization();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite("Data Source=productreviewNew.db"));
 
-builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
-{
-    options.SignIn.RequireConfirmedAccount = false;
-})
-.AddEntityFrameworkStores<ApplicationDbContext>();
+builder.Services
+    .AddDefaultIdentity<ApplicationUser>(opts =>
+    {
+        opts.SignIn.RequireConfirmedAccount = false;
+    })
+    .AddRoles<IdentityRole>()//rol eklendi
+    .AddEntityFrameworkStores<ApplicationDbContext>();
 
 
 var app = builder.Build();
 
-// Kullanýcý ekleme iþlemi - async çalýþtýrýlmasý gereken blok
 using (var scope = app.Services.CreateScope())
 {
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-    var email = "user@user.com";
-    var user = await userManager.FindByEmailAsync(email);
+    // Rolleri ekle
+    string[] roles = { "User", "Admin" };
+    foreach (var role in roles)
+        if (!await roleManager.RoleExistsAsync(role))
+            await roleManager.CreateAsync(new IdentityRole(role));
+
+    // "user@user.com"
+    var userEmail = "user@user.com";
+    var user = await userManager.FindByEmailAsync(userEmail);
     if (user == null)
     {
-        var newUser = new ApplicationUser
+        user = new ApplicationUser
         {
-            UserName = email,
-            Email = email,
+            UserName = userEmail,
+            Email = userEmail,
             EmailConfirmed = true
         };
-
-        var result = await userManager.CreateAsync(newUser, "User123!");
-        if (result.Succeeded)
-        {
-            Console.WriteLine("Seed kullanýcý baþarýyla eklendi.");
-        }
-        else
-        {
-            foreach (var error in result.Errors)
-                Console.WriteLine($"Hata: {error.Description}");
-        }
+        await userManager.CreateAsync(user, "User123!");
     }
-}
+    if (!await userManager.IsInRoleAsync(user, "User"))
+        await userManager.AddToRoleAsync(user, "User");
 
-// admin
-using (var scope = app.Services.CreateScope())
-{
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
+    // "admin@gmail.com"
     var adminEmail = "admin@gmail.com";
-    var adminUser = await userManager.FindByEmailAsync(adminEmail);
-    if (adminUser == null)
+    var admin = await userManager.FindByEmailAsync(adminEmail);
+    if (admin == null)
     {
-        var newAdmin = new ApplicationUser
+        admin = new ApplicationUser
         {
             UserName = adminEmail,
             Email = adminEmail,
             EmailConfirmed = true
         };
-
-        var result = await userManager.CreateAsync(newAdmin, "Admin123!");
-        if (result.Succeeded)
-        {
-            Console.WriteLine("Admin kullanýcý baþarýyla eklendi.");
-        }
-        else
-        {
-            foreach (var error in result.Errors)
-                Console.WriteLine($"Hata: {error.Description}");
-        }
+        await userManager.CreateAsync(admin, "Admin123!");
     }
+    if (!await userManager.IsInRoleAsync(admin, "Admin"))
+        await userManager.AddToRoleAsync(admin, "Admin");
 }
 
 

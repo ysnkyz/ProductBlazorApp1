@@ -225,7 +225,7 @@ namespace ProductBlazorApp1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Brands");
+                    b.ToTable("Brands", (string)null);
                 });
 
             modelBuilder.Entity("ProductBlazorApp1.Models.Category", b =>
@@ -240,7 +240,7 @@ namespace ProductBlazorApp1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", (string)null);
                 });
 
             modelBuilder.Entity("ProductBlazorApp1.Models.Product", b =>
@@ -272,7 +272,7 @@ namespace ProductBlazorApp1.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Products");
+                    b.ToTable("Products", (string)null);
                 });
 
             modelBuilder.Entity("ProductBlazorApp1.Models.Review", b =>
@@ -303,7 +303,7 @@ namespace ProductBlazorApp1.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Reviews");
+                    b.ToTable("Reviews", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

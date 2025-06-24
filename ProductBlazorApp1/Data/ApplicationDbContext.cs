@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using ProductBlazorApp1.Data;
 using ProductBlazorApp1.Models;
 
 namespace ProductBlazorApp1.Data
