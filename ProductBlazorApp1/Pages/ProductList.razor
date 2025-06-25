@@ -1,18 +1,26 @@
-﻿
-@layout MainLayout
+﻿@layout MainLayout
 @page "/products"
+@attribute [Authorize]
 @using Microsoft.EntityFrameworkCore
 @using ProductBlazorApp1.Models
 @using ProductBlazorApp1.Data
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+
 @inject ApplicationDbContext DbContext
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserManager<ApplicationUser> UserManager
 
 <h1 class="h3 mb-4 text-gray-800">Ürün Listesi</h1>
 
-<button class="btn btn-primary mb-3" @onclick="() => showForm = true">+ Yeni Ürün Ekle</button>
+@if (IsAdmin)
+{
+    <button class="btn btn-primary mb-3" @onclick="() => showForm = true">+ Yeni Ürün Ekle</button>
+}
 
 <!-- Yeni Ürün Formu -->
-@if (showForm)
+@if (showForm && IsAdmin)
 {
     <div class="card mb-4 p-4 border border-success">
         <EditForm Model="@newProduct" OnValidSubmit="@HandleValidSubmit">
@@ -74,16 +82,16 @@
                     <h6 class="card-subtitle mb-2 text-muted">@product.Brand?.BrandName</h6>
                     <p class="card-text"><strong>Kategori:</strong> @product.Category?.CategoryName</p>
                     <a class="btn btn-sm btn-outline-primary me-1" href="/products/@product.Id">Detay</a>
-                    <a class="btn btn-sm btn-warning me-1" href="/products/edit/@product.Id">Düzenle</a>
-                    <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteProduct(product.Id))">Sil</button>
+                    @if (IsAdmin)
+                    {
+                        <a class="btn btn-sm btn-warning me-1" href="/products/edit/@product.Id">Düzenle</a>
+                        <button class="btn btn-sm btn-danger" @onclick="@(() => DeleteProduct(product.Id))">Sil</button>
+                    }
                 </div>
             </div>
         </div>
     }
 </div>
-
-
-
 
 @code {
     private List<Product>? products;
@@ -91,9 +99,18 @@
     private List<Category> categories = new();
     private Product newProduct = new();
     private bool showForm = false;
+    private bool IsAdmin = false;
 
     protected override async Task OnInitializedAsync()
     {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var currentUser = await UserManager.GetUserAsync(authState.User);
+        if (currentUser != null)
+        {
+            var roles = await UserManager.GetRolesAsync(currentUser);
+            IsAdmin = roles.Contains("Admin");
+        }
+
         await LoadData();
     }
 
@@ -110,28 +127,27 @@
 
     private async Task HandleValidSubmit()
     {
+        if (!IsAdmin)
+            return;
+
         DbContext.Products.Add(newProduct);
         await DbContext.SaveChangesAsync();
-        newProduct = new Product(); // formu temizle
+        newProduct = new Product();
         showForm = false;
-        await LoadData(); // listeyi yenile
+        await LoadData();
     }
 
     private async Task DeleteProduct(int id)
     {
+        if (!IsAdmin)
+            return;
+
         var product = await DbContext.Products.FindAsync(id);
         if (product != null)
         {
             DbContext.Products.Remove(product);
             await DbContext.SaveChangesAsync();
-            await LoadData(); // listeyi güncelle
+            await LoadData();
         }
     }
 }
-
-
-
-
-
-
-

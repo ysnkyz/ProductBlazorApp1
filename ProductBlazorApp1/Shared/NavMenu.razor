@@ -1,42 +1,50 @@
-﻿
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using ProductBlazorApp1.Data
 
- <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-    <!-- Brand -->
-    <li class="nav">
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
-            <div class="sidebar-brand-text mx-3">ÜRÜN DEĞERLENDİRME</div>
-        </a>
-    </li>
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserManager<ApplicationUser> UserManager
 
-    <hr class="sidebar-divider my-0" />
+<AuthorizeView>
+    <Authorized>
+        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+            <!-- Brand -->
+            <li class="nav">
+                <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
+                    <div class="sidebar-brand-text mx-3">ÜRÜN DEĞERLENDİRME</div>
+                </a>
+            </li>
 
+            <hr class="sidebar-divider my-0" />
 
-    <!-- Ürünler -->
-    <li class="nav-item">
-        <NavLink class="nav-link" href="/products">
-            <i class="fas fa-fw fa-box"></i>
-            <span>Ürünler</span>
-        </NavLink>
-    </li>
+            <!-- Ürünler : HERKES -->
+            <li class="nav-item">
+                <NavLink class="nav-link" href="/products">
+                    <i class="fas fa-fw fa-box"></i>
+                    <span>Ürünler</span>
+                </NavLink>
+            </li>
 
-    <!-- Kategoriler -->
-    <li class="nav-item">
-        <NavLink class="nav-link" href="/categories">
-            <i class="fas fa-fw fa-list"></i>
-            <span>Kategoriler</span>
-        </NavLink>
-    </li>
+            <!-- Admin'e Özel Bölüm -->
+            <AuthorizeView Roles="Admin">
+                <Authorized Context="adminUser">
+                    <!-- Kategoriler -->
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/categories">
+                            <i class="fas fa-fw fa-list"></i>
+                            <span>Kategoriler</span>
+                        </NavLink>
+                    </li>
 
-    <!-- Markalar -->
-    <li class="nav-item">
-        <NavLink class="nav-link" href="/brands">
-            <i class="fas fa-fw fa-industry"></i>
-            <span>Markalar</span>
-        </NavLink>
-    </li>
-</ul>
-
-
-
-
-
+                    <!-- Markalar -->
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/brands">
+                            <i class="fas fa-fw fa-industry"></i>
+                            <span>Markalar</span>
+                        </NavLink>
+                    </li>
+                </Authorized>
+            </AuthorizeView>
+        </ul>
+    </Authorized>
+</AuthorizeView>
