@@ -1,21 +1,4 @@
-﻿@* @page
-@model ProductBlazorApp1.Pages.LoginModel
-@{
-    Layout = "_Layout";
-} *@
-@* <form method="post">
-    @Html.AntiForgeryToken()
-    <input name="Email" placeholder="Email" />
-    <input name="Password" type="password" placeholder="Şifre" />
-    <button type="submit">Giriş Yap</button>
-</form>
-
-@if (Model.ErrorMessage != null)
-{
-    <p style="color:red">@Model.ErrorMessage</p>
-} *@
-
-
+﻿
 @page "/login"
 @model ProductBlazorApp1.Pages.LoginModel
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
@@ -23,55 +6,73 @@
     Layout = "_Layout";
 }
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-xl-10 col-lg-12 col-md-9">
-            <div class="card o-hidden border-0 shadow-lg my-5">
-                <div class="card-body p-0">
-                    <!-- Nested Row -->
-                    <div class="row">
-                        <div class="col-lg-6 d-none d-lg-block bg-login-image"></div>
-                        <div class="col-lg-6">
-                            <div class="p-5">
-                                <div class="text-center">
-                                    <h1 class="h4 text-gray-900 mb-4">Hoş Geldiniz!</h1>
-                                </div>
+<style>
+    .login-background {
+        background: linear-gradient(to right, #7F00FF, #E100FF);
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+        background-attachment: fixed;
+    }
+</style>
 
-                                <form method="post" class="user">
-                                    <div asp-validation-summary="All" class="text-danger"></div>
-                                    @Html.AntiForgeryToken()
-
-                                    <div class="form-group">
-                                        <input asp-for="Email"
-                                               class="form-control form-control-user"
-                                               placeholder="E-posta Adresi" />
-                                        <span asp-validation-for="Email" class="text-danger"></span>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <input asp-for="Password" type="password"
-                                               class="form-control form-control-user"
-                                               placeholder="Şifre" />
-                                        <span asp-validation-for="Password" class="text-danger"></span>
-                                    </div>
-
-                                    <button type="submit" class="btn btn-primary btn-user btn-block">
-                                        Giriş Yap
-                                    </button>
-                                </form>
-
-                                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
-                                {
-                                    <div class="alert alert-danger mt-3">
-                                        @Model.ErrorMessage
-                                    </div>
-                                }
-
-                                <hr />
-                                <div class="text-center">
-                                    <a class="small" href="/register">Yeni Hesap Oluştur</a>
-                                </div>
+<div class="login-background">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-10 col-lg-12 col-md-9">
+                <div class="card o-hidden border-0 shadow-lg my-5">
+                    <div class="card-body p-0">
+                        <div class="row">
+                            <!-- Sol görsel -->
+                            <div class="col-lg-6 d-none d-lg-block p-0">
+                                <img src="~/img/login-left.png" alt="Login Görseli"
+                                     style="width: 100%; height: 100%; object-fit: cover;
+                                            border-top-left-radius: .35rem; border-bottom-left-radius: .35rem;" />
                             </div>
+
+                            <!-- Sağ form -->
+                            <div class="col-lg-6">
+                                <div class="p-5">
+                                    <div class="text-center">
+                                        <h1 class="h4 text-gray-900 mb-4">Hoş Geldiniz!</h1>
+                                    </div>
+
+                                    <form method="post" class="user">
+                                        <div asp-validation-summary="All" class="text-danger"></div>
+                                        @Html.AntiForgeryToken()
+
+                                        <div class="form-group">
+                                            <input asp-for="Email"
+                                                   class="form-control form-control-user"
+                                                   placeholder="E-posta Adresi" />
+                                            <span asp-validation-for="Email" class="text-danger"></span>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <input asp-for="Password" type="password"
+                                                   class="form-control form-control-user"
+                                                   placeholder="Şifre" />
+                                            <span asp-validation-for="Password" class="text-danger"></span>
+                                        </div>
+
+                                        <button type="submit" class="btn btn-primary btn-user btn-block">
+                                            Giriş Yap
+                                        </button>
+                                    </form>
+
+                                    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                                    {
+                                        <div class="alert alert-danger mt-3">
+                                            @Model.ErrorMessage
+                                        </div>
+                                    }
+
+                                    <hr />
+                                    <div class="text-center">
+                                        <a class="small" href="/register">Yeni Hesap Oluştur</a>
+                                    </div>
+                                </div>
+                            </div> <!-- Sağ form bitiş -->
                         </div>
                     </div>
                 </div>
@@ -79,3 +80,4 @@
         </div>
     </div>
 </div>
+

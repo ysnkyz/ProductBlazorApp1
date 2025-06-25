@@ -1,6 +1,10 @@
-﻿@page "/products/{id:int}"
+﻿
+@page "/products/{id:int}"
 @inject ApplicationDbContext db
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserManager<ApplicationUser> UserManager
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.EntityFrameworkCore
 @using ProductBlazorApp1.Data
 @using ProductBlazorApp1.Models
@@ -12,13 +16,14 @@
     private Review newReview = new();
     private double averageRating = 0;
     private string errorMessage;
+    private bool isAdmin = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         product = db.Products
-       .Include(p => p.Category)
-       .Include(p => p.Brand)
-       .FirstOrDefault(p => p.Id == id);
+            .Include(p => p.Category)
+            .Include(p => p.Brand)
+            .FirstOrDefault(p => p.Id == id);
 
         if (product == null)
         {
@@ -26,7 +31,19 @@
             return;
         }
 
+        await CheckIfUserIsAdmin();
         LoadReviews();
+    }
+
+    private async Task CheckIfUserIsAdmin()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = await UserManager.GetUserAsync(authState.User);
+        if (user != null)
+        {
+            var roles = await UserManager.GetRolesAsync(user);
+            isAdmin = roles.Contains("Admin"); // admin rol adı
+        }
     }
 
     private void LoadReviews()
@@ -36,10 +53,7 @@
             .OrderByDescending(r => r.CreatedAt)
             .ToList();
 
-        if (reviews.Any())
-            averageRating = Math.Round(reviews.Average(r => r.Rating), 1);
-        else
-            averageRating = 0;
+        averageRating = reviews.Any() ? Math.Round(reviews.Average(r => r.Rating), 1) : 0;
     }
 
     private void AddReview()
@@ -50,8 +64,6 @@
             return;
         }
 
-        newReview.ProductId = id;
-        newReview.CreatedAt = DateTime.Now;
         db.Reviews.Add(new Review
             {
                 UserName = newReview.UserName,
@@ -60,15 +72,27 @@
                 ProductId = id,
                 CreatedAt = DateTime.Now
             });
+
         db.SaveChanges();
         newReview = new Review();
         errorMessage = null;
         LoadReviews();
         StateHasChanged();
     }
+
+    private void DeleteReview(int reviewId)
+    {
+        var review = db.Reviews.FirstOrDefault(r => r.Id == reviewId);
+        if (review != null)
+        {
+            db.Reviews.Remove(review);
+            db.SaveChanges();
+            LoadReviews();
+        }
+    }
 }
 
-<!-- ✅ Ürün Görseli -->
+<!--  Ürün Görseli -->
 @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
 {
     <img src="@product.ImageUrl"
@@ -139,12 +163,23 @@ else
 <h4>Yorumlar</h4>
 @foreach (var r in reviews)
 {
-    <div class="border rounded p-2 mb-2">
-        <b>@r.UserName</b>
-        <span style="color:gold">@string.Concat(Enumerable.Repeat("★", r.Rating))</span>
-        <span style="color:lightgray">@string.Concat(Enumerable.Repeat("★", 5 - r.Rating))</span>
-        <span class="text-muted" style="font-size:12px;">@r.CreatedAt.ToShortDateString()</span>
-        <br />
-        @r.Comment
+    <div class="border rounded p-2 mb-2 d-flex justify-content-between align-items-start">
+        <div>
+            <b>@r.UserName</b>
+            <span style="color:gold">@string.Concat(Enumerable.Repeat("★", r.Rating))</span>
+            <span style="color:lightgray">@string.Concat(Enumerable.Repeat("★", 5 - r.Rating))</span>
+            <span class="text-muted" style="font-size:12px;">@r.CreatedAt.ToShortDateString()</span>
+            <br />
+            @r.Comment
+        </div>
+        @if (isAdmin)
+        {
+            <button class="btn btn-sm btn-danger ms-2"
+                    @onclick="() => DeleteReview(r.Id)">
+                Sil
+            </button>
+        }
     </div>
 }
+
+
