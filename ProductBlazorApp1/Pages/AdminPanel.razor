@@ -1,6 +1,6 @@
 ﻿@page "/admin"
 
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin")]
 
 <h3>Admin Panel</h3>
 <p>Yalnızca admin burada işlem yapabilir.</p>

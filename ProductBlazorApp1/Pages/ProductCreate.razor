@@ -1,4 +1,5 @@
 ﻿@page "/products/create"
+@attribute [Authorize(Roles = "Admin")]
 @layout MainLayout
 @using Microsoft.EntityFrameworkCore
 @using ProductBlazorApp1.Models

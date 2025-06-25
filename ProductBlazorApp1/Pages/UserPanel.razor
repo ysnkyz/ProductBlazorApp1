@@ -1,3 +1,4 @@
 ﻿@page "/panel"
+@attribute [Authorize(Roles = "User")]
 <h3>Kullanıcı Paneli</h3>
 <p>Giriş yapan tüm kullanıcılar bu sayfaya yönlendirilir.</p>

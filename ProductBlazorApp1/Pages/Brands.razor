@@ -1,4 +1,5 @@
 ﻿@page "/brands"
+@attribute [Authorize(Roles = "Admin")]
 @using ProductBlazorApp1.Models
 @using ProductBlazorApp1.Data
 @inject ApplicationDbContext db
