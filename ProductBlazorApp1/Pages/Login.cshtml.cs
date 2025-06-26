@@ -4,8 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using ProductBlazorApp1.Data;
 
-
-
 namespace ProductBlazorApp1.Pages;
 
 [AllowAnonymous]
@@ -27,27 +25,6 @@ public class LoginModel : PageModel
 
     [BindProperty]
     public string Password { get; set; }
-
-    //public async Task<IActionResult> OnPostAsync()
-    //{
-    //    var user = await _userManager.FindByEmailAsync(Email);
-    //    if (user == null)
-    //    {
-    //        ErrorMessage = "Kullanıcı bulunamadı.";
-    //        return Page();
-    //    }
-
-    //    var result = await _signInManager.PasswordSignInAsync(user, Password, true, false);
-    //    if (result.Succeeded)
-    //    {
-
-    //        return Redirect("/panel");
-    //    }
-
-    //    ErrorMessage = "Giriş başarısız.";
-    //    return Page();
-    //}
-
     public async Task<IActionResult> OnPostAsync()
     {
         if (!ModelState.IsValid)
@@ -65,9 +42,6 @@ public class LoginModel : PageModel
 
         if (result.Succeeded)
         {
-
-            //var token = Guid.NewGuid().ToString();
-            //TempData["Token"] = token;          // front-end’e taşıyacağız
 
             // Rol/kullanıcıya göre yönlendirme
             if (Email.Equals("admin@gmail.com", StringComparison.OrdinalIgnoreCase))

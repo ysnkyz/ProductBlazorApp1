@@ -1,5 +1,6 @@
 ﻿
 @page "/products/{id:int}"
+@attribute [Authorize]
 @inject ApplicationDbContext db
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
