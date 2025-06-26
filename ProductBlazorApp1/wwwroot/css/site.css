@@ -1,0 +1,18 @@
+﻿/*yasinCss*/
+
+.translate-left,
+.translate-right {
+    transform: none !important;
+}
+
+@media (min-width: 768px) {
+    .translate-left {
+        transform: translateX(-60px) !important;
+        transition: transform 0.3s ease;
+    }
+
+    .translate-right {
+        transform: translateX(60px) !important;
+        transition: transform 0.3s ease;
+    }
+}

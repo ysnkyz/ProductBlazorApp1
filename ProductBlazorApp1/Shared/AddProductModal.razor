@@ -1,0 +1,78 @@
+﻿@using Microsoft.EntityFrameworkCore
+@using ProductBlazorApp1.Data
+@using ProductBlazorApp1.Models
+@inject ApplicationDbContext DbContext
+@code {
+    [Parameter] public EventCallback OnProductAdded { get; set; }
+
+    private Product newProduct = new();
+    private List<Brand> brands = new();
+    private List<Category> categories = new();
+    private bool showModal = false;
+
+    public void Show() => showModal = true;
+
+    private async Task HandleValidSubmit()
+    {
+        DbContext.Products.Add(newProduct);
+        await DbContext.SaveChangesAsync();
+        newProduct = new Product();
+        showModal = false;
+        await OnProductAdded.InvokeAsync();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        brands = await DbContext.Brands.ToListAsync();
+        categories = await DbContext.Categories.ToListAsync();
+    }
+}
+
+@if (showModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content p-3">
+                <EditForm Model="@newProduct" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="mb-2">
+                        <label>Ürün Adı</label>
+                        <InputText class="form-control" @bind-Value="newProduct.Name" />
+                    </div>
+                    <div class="mb-2">
+                        <label>Açıklama</label>
+                        <InputTextArea class="form-control" @bind-Value="newProduct.Description" />
+                    </div>
+                    <div class="mb-2">
+                        <label>Görsel URL</label>
+                        <InputText class="form-control" @bind-Value="newProduct.ImageUrl" />
+                    </div>
+                    <div class="mb-2">
+                        <label>Marka</label>
+                        <InputSelect class="form-control" @bind-Value="newProduct.BrandId">
+                            <option value="">-- Marka Seçin --</option>
+                            @foreach (var b in brands)
+                            {
+                                <option value="@b.Id">@b.BrandName</option>
+                            }
+                        </InputSelect>
+                    </div>
+                    <div class="mb-2">
+                        <label>Kategori</label>
+                        <InputSelect class="form-control" @bind-Value="newProduct.CategoryId">
+                            <option value="">-- Kategori Seçin --</option>
+                            @foreach (var c in categories)
+                            {
+                                <option value="@c.Id">@c.CategoryName</option>
+                            }
+                        </InputSelect>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Kaydet</button>
+                    <button type="button" class="btn btn-secondary ms-2" @onclick="() => showModal = false">İptal</button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
