@@ -7,10 +7,14 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Identity
 
+
 @inject ApplicationDbContext DbContext
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthStateProvider
 @inject UserManager<ApplicationUser> UserManager
+
+@inject IJSRuntime JSRuntime
+
 
 <h1 class="h3 mb-4 text-gray-800">Ürün Listesi</h1>
 
@@ -116,6 +120,19 @@
             DbContext.Products.Remove(product);
             await DbContext.SaveChangesAsync();
             await LoadData();
+
+            await JSRuntime.InvokeVoidAsync("Swal.fire", new
+            {
+                title = "Silindi!",
+                text = "Ürün başarıyla silindi.",
+                icon = "success",
+                confirmButtonText = "Tamam"
+            });
+
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Ürün bulunamadı.");
         }
     }
 }

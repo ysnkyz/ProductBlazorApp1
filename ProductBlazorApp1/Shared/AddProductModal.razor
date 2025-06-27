@@ -2,6 +2,9 @@
 @using ProductBlazorApp1.Data
 @using ProductBlazorApp1.Models
 @inject ApplicationDbContext DbContext
+
+@inject IJSRuntime JSRuntime
+
 @code {
     [Parameter] public EventCallback OnProductAdded { get; set; }
 
@@ -16,6 +19,18 @@
     {
         DbContext.Products.Add(newProduct);
         await DbContext.SaveChangesAsync();
+
+        // alert
+        await JSRuntime.InvokeVoidAsync("Swal.fire", new
+        {
+            title = "Başarılı!",
+            text = "Yeni ürün başarıyla eklendi.",
+            icon = "success",
+            confirmButtonText = "Tamam"
+        });
+
+
+
         newProduct = new Product();
         showModal = false;
         await OnProductAdded.InvokeAsync();

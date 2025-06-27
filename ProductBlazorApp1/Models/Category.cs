@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public string CategoryName { get; set; } = string.Empty;
 
-        // Bir kategoriye ait birden fazla ürün olabilir
+        // bir kategoriye ait birden fazla ürün olabilir
         public ICollection<Product> Products { get; set; } = new List<Product>();
     }
 }

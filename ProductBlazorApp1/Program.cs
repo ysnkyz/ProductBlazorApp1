@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ProductBlazorApp1.Data;
+using ProductBlazorApp1.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

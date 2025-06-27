@@ -3,6 +3,7 @@
 @using ProductBlazorApp1.Models
 @using ProductBlazorApp1.Data
 @inject ApplicationDbContext db
+@inject IJSRuntime JSRuntime
 
 <h3>Marka Listesi</h3>
 
@@ -59,7 +60,7 @@
         brands = db.Brands.OrderBy(b => b.BrandName).ToList();
     }
 
-    private void AddBrand()
+    private async Task AddBrand()
     {
         if (!string.IsNullOrWhiteSpace(newBrand.BrandName))
         {
@@ -67,11 +68,18 @@
             db.SaveChanges();
             newBrand = new Brand();
             LoadBrands();
-            StateHasChanged();
+
+            await JSRuntime.InvokeVoidAsync("Swal.fire", new
+            {
+                title = "Başarılı!",
+                text = "Marka eklendi.",
+                icon = "success",
+                confirmButtonText = "Tamam"
+            });
         }
     }
 
-    private void DeleteBrand(int id)
+    private async Task DeleteBrand(int id)
     {
         var brand = db.Brands.Find(id);
         if (brand != null)
@@ -79,7 +87,14 @@
             db.Brands.Remove(brand);
             db.SaveChanges();
             LoadBrands();
-            StateHasChanged();
+
+            await JSRuntime.InvokeVoidAsync("Swal.fire", new
+            {
+                title = "Silindi!",
+                text = "Marka başarıyla silindi.",
+                icon = "success",
+                confirmButtonText = "Tamam"
+            });
         }
     }
 }

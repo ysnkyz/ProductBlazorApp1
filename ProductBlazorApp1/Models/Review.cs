@@ -8,7 +8,7 @@ namespace ProductBlazorApp1.Models
         public string UserName { get; set; } = string.Empty;
         [MaxLength(1000)] //SQLite için uyumlu
         public string Comment { get; set; } = string.Empty;
-        public int Rating { get; set; } // 1–5
+        public int Rating { get; set; } // 1–5 yıldız
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public int ProductId { get; set; }

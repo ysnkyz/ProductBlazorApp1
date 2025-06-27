@@ -7,6 +7,9 @@
 @inject ApplicationDbContext DbContext
 @inject NavigationManager Navigation
 
+@inject IJSRuntime JSRuntime
+
+
 <h3 class="mb-4">Ürün Düzenle</h3>
 
 @if (product == null)
@@ -96,6 +99,19 @@ else
     {
         DbContext.Products.Update(product!);
         await DbContext.SaveChangesAsync();
+
+        // SweetAlert2 ile başarılı mesaj
+        await JSRuntime.InvokeVoidAsync("Swal.fire", new
+        {
+            title = "Başarılı!",
+            text = "Ürün güncelleme işlemi tamamlandı.",
+            icon = "success",
+            confirmButtonText = "Tamam"
+        });
+
+        // Yönlendirme -alert kapandıktan sonra yönlendir
+        await Task.Delay(500); 
         Navigation.NavigateTo("/products");
+
     }
 }

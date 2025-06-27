@@ -3,6 +3,7 @@
 @using ProductBlazorApp1.Models
 @using ProductBlazorApp1.Data
 @inject ApplicationDbContext db
+@inject IJSRuntime JSRuntime
 
 <h3>Kategori Listesi</h3>
 
@@ -59,20 +60,25 @@
         categories = db.Categories.OrderBy(c => c.CategoryName).ToList();
     }
 
-    private void AddCategory()
+    private async Task AddCategory()
     {
-        Console.WriteLine("AddCategory ÇALIŞTI!");
         if (!string.IsNullOrWhiteSpace(newCategory.CategoryName))
         {
             db.Categories.Add(new Category { CategoryName = newCategory.CategoryName.Trim() });
             db.SaveChanges();
             newCategory = new Category();
             LoadCategories();
-            StateHasChanged();
+            await JSRuntime.InvokeVoidAsync("Swal.fire", new
+            {
+                title = "Başarılı!",
+                text = "Kategori eklendi.",
+                icon = "success",
+                confirmButtonText = "Tamam"
+            });
         }
     }
 
-    private void DeleteCategory(int id)
+    private async Task DeleteCategory(int id)
     {
         var category = db.Categories.Find(id);
         if (category != null)
@@ -80,7 +86,13 @@
             db.Categories.Remove(category);
             db.SaveChanges();
             LoadCategories();
-            StateHasChanged();
+            await JSRuntime.InvokeVoidAsync("Swal.fire", new
+            {
+                title = "Silindi!",
+                text = "Kategori başarıyla silindi.",
+                icon = "success",
+                confirmButtonText = "Tamam"
+            });
         }
     }
 }

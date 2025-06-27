@@ -8,13 +8,13 @@
 
         public string Description { get; set; } = string.Empty;
 
-        // MARKA ilişkisi
+        // marka ilişkisi
         public int? BrandId { get; set; }
         public Brand? Brand { get; set; }        //Nullable
 
-        // KATEGORİ ilişkisi
+        // kategori ilişkisi
         public int? CategoryId { get; set; }
-        public Category? Category { get; set; }  //Nullable
+        public Category? Category { get; set; }  
 
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
     }
